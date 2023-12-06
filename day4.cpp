@@ -27,13 +27,19 @@ std::vector<std::string> str_tokenizer(std::string s, char del) {
   return tokens;
 }
 
+void print(std::vector<int> v) {
+  for (auto i : v) {
+    std::cout << i << " ";
+  }
+  std::cout << std::endl;
+}
+
 int find_points(std::string line) {
   std::vector<std::string> cardContents;
   cardContents = str_tokenizer(line, '|');
   std::string match, card;
   match = str_tokenizer(cardContents[0], ':')[1];
   card = cardContents[1];
-  std::cout << match << " cards in hand " << card << std::endl;
 
   std::vector<std::string> matchNums;
   std::vector<std::string> cardNums;
@@ -41,24 +47,37 @@ int find_points(std::string line) {
   matchNums = str_tokenizer(match, ' ');
   cardNums = str_tokenizer(card, ' ');
 
-  std::sort(matchNums.begin(), matchNums.end());
-  std::sort(cardNums.begin(), cardNums.end());
+  auto stringToInt = [](const std::string &s) { return std::stoi(s); };
+
+  std::vector<int> intMatchNums;
+  std::transform(matchNums.begin(), matchNums.end(),
+                 std::back_inserter(intMatchNums), stringToInt);
+
+  std::vector<int> intCardNums;
+  std::transform(cardNums.begin(), cardNums.end(),
+                 std::back_inserter(intCardNums), stringToInt);
+
+  std::sort(intMatchNums.begin(), intMatchNums.end());
+  std::sort(intCardNums.begin(), intCardNums.end());
+
+  print(intMatchNums);
+  print(intCardNums);
 
   int hits = 0;
 
-  std::vector<std::string>::iterator it = matchNums.begin();
-  std::vector<std::string>::iterator end = matchNums.end();
+  std::vector<int>::iterator it = intMatchNums.begin();
+  std::vector<int>::iterator end = intMatchNums.end();
 
-  std::vector<std::string>::iterator it2 = cardNums.begin();
-  std::vector<std::string>::iterator end2 = cardNums.end();
+  std::vector<int>::iterator it2 = intCardNums.begin();
+  std::vector<int>::iterator end2 = intCardNums.end();
 
   while (it != end && it2 != end2) {
-    if (std::stoi(*it) == std::stoi(*it2)) {
+    if (*it == *it2) {
       std::cout << "hit for " << *it << " and " << *it2 << std::endl;
       hits++;
       ++it;
       ++it2;
-    } else if (std::stoi(*it) < std::stoi(*it2)) {
+    } else if (*it < *it2) {
       ++it;
     } else {
       ++it2;
