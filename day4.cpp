@@ -34,7 +34,7 @@ void print(std::vector<int> v) {
   std::cout << std::endl;
 }
 
-int find_points(std::string line) {
+int find_points(std::string line, bool part2) {
   std::vector<std::string> cardContents;
   cardContents = str_tokenizer(line, '|');
   std::string match, card;
@@ -60,9 +60,6 @@ int find_points(std::string line) {
   std::sort(intMatchNums.begin(), intMatchNums.end());
   std::sort(intCardNums.begin(), intCardNums.end());
 
-  print(intMatchNums);
-  print(intCardNums);
-
   int hits = 0;
 
   std::vector<int>::iterator it = intMatchNums.begin();
@@ -73,7 +70,6 @@ int find_points(std::string line) {
 
   while (it != end && it2 != end2) {
     if (*it == *it2) {
-      std::cout << "hit for " << *it << " and " << *it2 << std::endl;
       hits++;
       ++it;
       ++it2;
@@ -84,11 +80,51 @@ int find_points(std::string line) {
     }
   }
 
-  int point = std::pow(2, hits - 1);
-
-  std::cout << "point " << point << std::endl;
-
+  int point;
+  if (part2 == true) {
+    point = hits;
+  } else {
+    point = std::pow(2, hits - 1);
+  }
   return point;
+}
+
+void solvePart1(std::vector<std::string> lines) {
+  int sum;
+  for (auto l : lines) {
+    sum += find_points(l, false);
+  }
+  std::cout << "answer is : " << sum;
+}
+
+void solvePart2(std::vector<std::string> &lines) {
+  int sum = 0;
+  std::vector<int> hit_list;
+  int size = lines.size();
+
+  for (int i = 0; i < size; i++) {
+    hit_list.push_back(find_points(lines[i], true));
+  }
+
+  std::vector<int> instances(size, 1);
+  print(hit_list);
+  std::cout << std::endl;
+
+  for (int i = 0; i < size; i++) {
+    std::cout << "processing orignal " << i << std::endl;
+    int cur = hit_list[i];
+    int multiple = instances[i];
+    for (int j = 0; j < cur; j++) {
+      instances[j + i + 1] += multiple;
+    }
+    print(instances);
+  }
+
+  for (auto i : instances) {
+    sum += i;
+  }
+
+  std::cout << "answer is : " << sum;
 }
 
 int main() {
@@ -108,12 +144,8 @@ int main() {
   }
   openFile.close();
 
-  int sum;
-  for (auto l : lines) {
-    sum += find_points(l);
-  }
-
-  std::cout << "answer is : " << sum;
+  //  solvePart1(lines);
+  solvePart2(lines);
 
   return 0;
 }
